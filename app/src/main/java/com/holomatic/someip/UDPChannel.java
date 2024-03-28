@@ -10,27 +10,30 @@ import java.net.InetAddress;
  * @time 27/3/2024 15:49
  * @desc
  */
-public class UDPLayer {
+public class UDPChannel {
 
-    private static UDPLayer instance;
+    private static UDPChannel instance;
 
-    public static UDPLayer getInstance(){
+    public static UDPChannel getInstance(){
         if (instance == null) {
-            synchronized (UDPLayer.class){
+            synchronized (UDPChannel.class){
                 if(instance == null){
-                    instance = new UDPLayer();
+                    instance = new UDPChannel();
                 }
             }
         }
         return instance;
     }
 
+    // 陆逊-PC
+//    public static final String RemoteServerHost = "10.1.1.112";
     public static final String RemoteServerHost = "127.0.0.1";
-    public static final int RemoteServerPort = 12345;
+    public static final int RemoteServerPort = 9990;
 
     public void sendMsg(byte[] data){
         try (DatagramSocket clientSocket = new DatagramSocket()) {
             InetAddress serverAddressInetAddress = InetAddress.getByName(RemoteServerHost);
+            /* data 的最大长度为65507 byte */
             DatagramPacket sendPacket = new DatagramPacket(data, data.length, serverAddressInetAddress, RemoteServerPort);
             clientSocket.send(sendPacket);
         } catch (IOException e) {
@@ -39,7 +42,7 @@ public class UDPLayer {
     }
 
 
-    public static final int LocalServerPort = 12345;
+    public static final int LocalServerPort = 9990;
     public void startReceive(UDPPkgReceiver receiver){
         Runnable runnable = new Runnable() {
             @Override
@@ -52,7 +55,7 @@ public class UDPLayer {
                         DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
                         serverSocket.receive(receivePacket);
                         receiver.onGotData(receivePacket.getData(),0,receivePacket.getLength());
-                        System.out.println("Received from client: " + receivePacket.getLength());
+//                        System.out.println("Received from client: " + receivePacket.getLength());
                         // 可以在这里添加代码来处理接收到的数据
                     }
                 } catch (IOException e) {

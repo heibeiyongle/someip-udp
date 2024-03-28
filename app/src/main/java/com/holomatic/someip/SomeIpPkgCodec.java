@@ -39,7 +39,7 @@ public class SomeIpPkgCodec {
 
     public static class SomeIpPkg{
         public short mServiceId, mMethodId;
-        public int length;
+        public int mLength;
         public short reqClientId, reqSessionId;
         public byte protocolVer, interfaceVer;
         public byte msgType, returnCode;
@@ -57,7 +57,7 @@ public class SomeIpPkgCodec {
             mSmIpHeadByteBuf.flip();
             mServiceId = mSmIpHeadByteBuf.getShort();
             mMethodId = mSmIpHeadByteBuf.getShort();
-            length = mSmIpHeadByteBuf.getInt();
+            mLength = mSmIpHeadByteBuf.getInt();
             reqClientId = mSmIpHeadByteBuf.getShort();
             reqSessionId = mSmIpHeadByteBuf.getShort();
             protocolVer = mSmIpHeadByteBuf.get();
@@ -71,7 +71,7 @@ public class SomeIpPkgCodec {
             this.mServiceId = serviceId;
             this.mMethodId = methodId;
             this.payload = payload;
-            this.length = payload.length + headSize;
+            this.mLength = payload.length + 2*4;
         }
 
 
@@ -80,7 +80,7 @@ public class SomeIpPkgCodec {
             mSmIpHeadByteBuf.clear();
             mSmIpHeadByteBuf.putShort(mServiceId);
             mSmIpHeadByteBuf.putShort(mMethodId);
-            mSmIpHeadByteBuf.putInt(length);
+            mSmIpHeadByteBuf.putInt(mLength);
             mSmIpHeadByteBuf.putShort(reqClientId);
             mSmIpHeadByteBuf.putShort(reqSessionId);
             mSmIpHeadByteBuf.put(protocolVer);
@@ -98,7 +98,8 @@ public class SomeIpPkgCodec {
             return "SomeIpPkg{" +
                     "mServiceId= 0x" + Integer.toHexString(mServiceId) +
                     ", mMethodId= 0x" + Integer.toHexString(mMethodId) +
-                    ", length=" + length +
+                    ", mMethodId= " + mMethodId +
+                    ", mLength=" + mLength +
                     ", reqClientId=" + reqClientId +
                     ", reqSessionId=" + reqSessionId +
                     ", protocolVer=" + protocolVer +

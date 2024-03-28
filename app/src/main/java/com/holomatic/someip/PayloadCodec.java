@@ -55,10 +55,16 @@ public class PayloadCodec {
         return res;
     }
 
+    public Object deCodeStructArr(byte[] data, Class template){
+        mByteBuffer.clear();
+        mByteBuffer.put(data);
+        mByteBuffer.flip();
+        return deCodeArray(mByteBuffer,template);
+    }
+
     public Object deCodeStruct(byte[] data, Class template){
         return deCodeStruct(data,0,data.length,template);
     }
-
 
     public Object deCodeStruct(byte[] data,int offset, int length, Class template){
         mByteBuffer.clear();
