@@ -5,12 +5,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.kotei.ktsomeip.struct.DistancePoint2F;
+import com.kotei.ktsomeip.struct.HMIDisplayInfo;
 import com.kotei.ktsomeip.struct.PrkgSlotInfo;
 import com.kotei.ktsomeip.struct.SignelLaneLineInfo;
 import com.kotei.ktsomeip.struct.SingleLaneMarkerInfo;
 import com.kotei.ktsomeip.struct.SingleObjectInfo;
 import com.kotei.ktsomeip.struct.SlotPoints;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 /**
@@ -24,6 +26,23 @@ public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
+
+
+        HMIDisplayInfo displayInfo = (HMIDisplayInfo) codec.deCodeStruct(arr, HMIDisplayInfo.class);
+
+        Field[] list = HMIDisplayInfo.class.getDeclaredFields();
+
+
+
+        for (Field f : list) {
+            System.out.println("onCreate f: "+f.getName());
+        }
+
+        System.out.println(displayInfo);
+
+        if(true){
+            return;
+        }
 
         UDPChannel udpLayer = UDPChannel.getInstance();
         udpLayer.startReceive(receiver);
@@ -108,6 +127,8 @@ public class ExampleUnitTest {
         udpLayer.sendMsg(someIpPkg2.toBytes());
 
         udpLayer.sendMsg(testdata);
+
+        codec.deCodeStruct(displayData, HMIDisplayInfo.class);
 
         // wait udp dealer
         try {
@@ -255,13 +276,13 @@ public class ExampleUnitTest {
 //            System.out.println(" upd-rec-someIpPkg:  " + someIpPkg);
 
             switch (someIpPkg.mServiceId) {
-//                case 0x1002:{
-//                    long start = System.currentTimeMillis();
-//                    PrkgSlotInfo prkgSlotInfo2 = (PrkgSlotInfo) codec.deCodeStruct(someIpPkg.payload, PrkgSlotInfo.class);
-//                    System.out.println(" upd-rec-decodeObj2:  "+ GsonUtils.getInstance().toJson(prkgSlotInfo2));
-//                    System.out.println(" upd-rec-deCodeCostMS:  "+ (System.currentTimeMillis() - start));
-//                    break;
-//                }
+                case 0x1002:{
+                    long start = System.currentTimeMillis();
+                    PrkgSlotInfo prkgSlotInfo2 = (PrkgSlotInfo) codec.deCodeStruct(someIpPkg.payload, PrkgSlotInfo.class);
+                    System.out.println(" upd-rec-decodeObj2:  "+ GsonUtils.getInstance().toJson(prkgSlotInfo2));
+                    System.out.println(" upd-rec-deCodeCostMS:  "+ (System.currentTimeMillis() - start));
+                    break;
+                }
 //                case 0x1003:{
 //                    long start = System.currentTimeMillis();
 //                    TestDto decodeDto = (TestDto) codec.deCodeStruct(someIpPkg.payload, TestDto.class);
@@ -280,8 +301,8 @@ public class ExampleUnitTest {
                     }
                     break;
                 }
-                case 0x0: {
-//                    if (someIpPkg.mMethodId == 0x00) {
+                case 0x1004: {
+//                    if (someIpPkg.mMethodId == (short)0x1005) {
 //                        long start = System.currentTimeMillis();
 //                        SingleObjectInfo[] decodeDtoArr = (SingleObjectInfo[]) codec.deCodeStructArr(someIpPkg.payload, SingleObjectInfo.class);
 //                        System.out.println(" de-udp-SingleObjectInfo-CodeCostMS:  " + (System.currentTimeMillis() - start));
@@ -303,9 +324,30 @@ public class ExampleUnitTest {
     };
 
 
+    private byte[] displayData2 = new byte[]{
+// 0, 0, 0, 52, 2, 0, 0, 0, 3, 0, 2, 3, 37, 1, 0, 0, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ 0, 0, 0, 52,
+2, 0, 0, 0, 3, -2, 2, 3, 40, 1, 0, 0, 0, 0, 0, 0,
+0, 27, 0, 0, 0, 18, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 127, 0, 0, 0, 0, 127, 0, 0, 0,
+0, 0, 0, 0, 0
+    };
+
+    byte[] arr = new byte[]{0, 0, 0, 52, 2, 0, 0, 0, 3, -2, 2, 5, 33, 1, 0, 0, 0, 0, 0, 0, 0, 27, 0, 0, 0, 18, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 127, 0, 0, 0, 0, 127, 0, 0, 0, 0, 0, 0, 0, 0};
+
+
+    private byte[] displayData = new byte[]{
+
+ (byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x34 ,(byte)0x09 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0xfc ,(byte)0x00 ,(byte)0x00 ,(byte)0x3c ,(byte)0x00 ,(byte)0x00 ,(byte)0x00
+ ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x12 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00
+ ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x7f ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x7f
+ ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00
+
+    };
+
     private byte[] testdata = new byte[]
             {
-                     (byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00
+                     (byte)0x10 ,(byte)0x04 ,(byte)0x10 ,(byte)0x05 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x00
                     ,(byte)0x00 ,(byte)0x00 ,(byte)0x06 ,(byte)0x40
 
                     ,(byte)0x00 ,(byte)0x00 ,(byte)0x00 ,(byte)0x4c
