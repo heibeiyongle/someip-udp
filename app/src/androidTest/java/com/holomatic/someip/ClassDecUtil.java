@@ -1,13 +1,8 @@
 package com.holomatic.someip;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author 比才-贾硕哲
@@ -15,11 +10,6 @@ import java.util.List;
  * @desc
  */
 public class ClassDecUtil {
-
-
-    /**
-     *
-      */
 
     ByteBuffer buffer;
     int tagIndex = 0;
@@ -33,13 +23,12 @@ public class ClassDecUtil {
         readConstantPool();
         skipBuffer(2*3);
 
-
 //        byte[] testArr = new byte[16];
 //        buffer.get(testArr);
 //        System.out.println(" [interfaceCnt .. ] testArr: "+Arrays.toString(testArr));
 
         int interfaceCnt = Short.toUnsignedInt(buffer.getShort());
-        System.out.println(" interfaceCnt: "+interfaceCnt);
+//        System.out.println(" interfaceCnt: "+interfaceCnt);
         skipBuffer(2*interfaceCnt);
         readFieldInfos();
         // print info
@@ -58,7 +47,7 @@ public class ClassDecUtil {
             tagIndex ++;
 
             byte tag = buffer.get();
-            System.out.println("tag:["+tagIndex+"] "+tag);
+//            System.out.println("tag:["+tagIndex+"] "+tag);
 
             switch (tag){
                 case 7:{
@@ -212,20 +201,21 @@ public class ClassDecUtil {
         int fieldIndex = 0;
         while (fieldIndex < fieldCnt){
             FieldInfo fieldInfo = new FieldInfo();
-//            byte[] tmp = new byte[4];
-//            buffer.get(tmp);
-            //", data:"+Arrays.toString(tmp)
             fieldInfo.accessFlags = Short.toUnsignedInt(buffer.getShort());
             fieldInfo.nameIndex = Short.toUnsignedInt(buffer.getShort());
             fieldInfo.nameStr = tagList[fieldInfo.nameIndex].utf8Tag;
-            System.out.println(" fieldInfo "+fieldIndex+", info: "+fieldInfo);
             fieldList.add(fieldInfo);
-
             // skip attr
             buffer.getShort(); // desc
-            int attrCnt = buffer.getShort();// attr cnt
+            int attrCnt = Short.toUnsignedInt(buffer.getShort());// attr cnt
+//            System.out.println(" attrCnt: "+attrCnt );
             // loop attr info
-            skipBuffer(7*attrCnt);
+            int attrIndex = 0;
+            while (attrIndex < attrCnt){
+                buffer.getShort();
+                int attrinfoLen = buffer.getInt();
+                skipBuffer(attrinfoLen);
+            }
             fieldIndex++;
         }
     }
@@ -264,7 +254,7 @@ public class ClassDecUtil {
         buffer.get(data);
         TagInfo tmpTag = TagInfo.genUtf8Tag(data);
         tagList[tagIndex] = tmpTag;
-        System.out.println(" tag["+tagIndex+"]: "+tmpTag);
+//        System.out.println(" tag["+tagIndex+"]: "+tmpTag);
     }
 
     public static class TagInfo{
