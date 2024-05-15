@@ -17,6 +17,20 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="-1209816712">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="HA1HZ4AT" value="120" />
+                  <entry key="LENOVO&#10; Lenovo TB-Q706F" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="-168001625">
           <value>
             <AndroidTestResultsTableState>
@@ -26,6 +40,20 @@
                   <entry key="Duration" value="90" />
                   <entry key="Google" value="120" />
                   <entry key="Google&#10; Pixel 4" value="120" />
+                  <entry key="HA1HZ4AT" value="120" />
+                  <entry key="LENOVO&#10; Lenovo TB-Q706F" value="120" />
+                  <entry key="Tests" value="360" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="718541284">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
                   <entry key="HA1HZ4AT" value="120" />
                   <entry key="LENOVO&#10; Lenovo TB-Q706F" value="120" />
                   <entry key="Tests" value="360" />

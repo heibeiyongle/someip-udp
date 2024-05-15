@@ -2,20 +2,20 @@ package com.holomatic.someip;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
-
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
-import com.kotei.ktsomeip.struct.HMIDisplayInfo;
+import com.holomatic.holopilotparking.soa.module.holodto.HoloDefUserSettings;
+import com.holomatic.holopilotparking.soa.module.holodto.HoloDefVehicleInfo;
+import com.holomatic.someip.api.SomeIpEngine;
+import com.holomatic.someip.cache.CacheImpl;
+import com.holomatic.someip.codec.SomeIpPkgCodec;
+import com.holomatic.utils.ClassDecUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,77 +29,51 @@ import java.util.List;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
-
+    SomeIpEngine engine;
     @Test
-    public void decodeClass() {
+    public void startEngine() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.holomatic.someip", appContext.getPackageName());
 
-        AssetManager assetManager = appContext.getAssets();
-        try {
-            InputStream inputStream = assetManager.open("dto/HMIDisplayInfo.holo");
+        engine = SomeIpEngine.getInstance();
+        engine.init(appContext);
+        engine.startEngine();
 
-            byte[] classData = new byte[ inputStream.available()];
-            inputStream.read(classData);
-            inputStream.close();
-            ClassDecUtil decUtil = new ClassDecUtil();
-            List<ClassDecUtil.FieldInfo> fieldInfos = decUtil.decodeClass(classData);
+        byte speed = 0;
+        while (true){
 
-            for (ClassDecUtil.FieldInfo f : fieldInfos) {
-                System.out.println(" fieldInfo: "+f);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            HoloDefVehicleInfo holoDefVehicleInfo = new HoloDefVehicleInfo();
+            holoDefVehicleInfo.Vehicle_Speed =speed++ ;
+            engine.mockPkg((short) 0x6001,(short) 0x8001,holoDefVehicleInfo);
 
+        }
 
     }
 
 
 
     @Test
-    public void useAppContext() {
+    public void setEvent() {
         // Context of the app under test.
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.holomatic.someip", appContext.getPackageName());
+        // event
+//        CacheImpl.SoaSpecInfo specInfo60018001 = new CacheImpl.SoaSpecInfo(0x6001, 0x8001, HoloDefVehicleInfo.class,
+//                true, null, Object.class);
 
-        Class hmiDisClass = HMIDisplayInfo.class;
-//        hmiDisClass.
-        Field[] list = hmiDisClass.getDeclaredFields();
-        Field[] list2 = hmiDisClass.getFields();
-
-
-        for (Field f : list) {
-            System.out.println("onCreate f: "+f.getName());
-        }
-
-        CameraManager manager = (CameraManager) appContext.getSystemService(Context.CAMERA_SERVICE);
-        String[] cameraIdList = new String[0];
-        try {
-            cameraIdList = manager.getCameraIdList();
-        } catch (CameraAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        for (String cameraId : cameraIdList) {
-            CameraCharacteristics characteristics = null;
-            try {
-                characteristics = manager.getCameraCharacteristics(cameraId);
-            } catch (CameraAccessException e) {
-                throw new RuntimeException(e);
-            }
-            int cameraType = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraType == CameraCharacteristics.LENS_FACING_FRONT) {
-                // 前置摄像头ID
-                System.out.println(" cameraID: "+cameraId+", front");
-            } else if (cameraType == CameraCharacteristics.LENS_FACING_BACK) {
-                // 后置摄像头ID
-                System.out.println(" cameraID: "+cameraId+", back");
-            }
-        }
-
-
+//        SoaSpecInfo specInfo60018001 = new SoaSpecInfo( 0x6001, 0x8001, HoloDefVehicleInfo.class,
+//                true,new Integer[]{ SOAFunctionName.INSTRUMENT_VEHICLE_INFO}, Object.class);
+//        SoaSpecInfo specInfo500d_8006 = new SoaSpecInfo( 0x6003, 0x9001, HoloDefUserSettings.class,
+//                true,new Integer[]{ SOAFunctionName.USER_SETTINGS}, Object.class);
+//        SoaSpecInfo specInfo503d_8001 = new SoaSpecInfo( 0x6002, 0x9003, Byte.TYPE,
+//                true,new Integer[]{ SOAFunctionName.UDP_PAA_FUNC_ST}, Object.class);
+        HoloDefVehicleInfo holoDefVehicleInfo = new HoloDefVehicleInfo();
+        holoDefVehicleInfo.Vehicle_Speed =1 ;
+        engine.mockPkg((short) 0x6001,(short) 0x8001,holoDefVehicleInfo);
     }
 }
