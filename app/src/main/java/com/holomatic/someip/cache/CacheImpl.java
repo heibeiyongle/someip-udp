@@ -104,8 +104,8 @@ public class CacheImpl implements ICache{
      *
      * cacheMap
      * key objectId
-     *      serviceId + 1001 // 代表ObjectId
-     *      serviceId + 8001 // 代表OEventObjectId
+     *      serviceId concat 1001 // 代表ObjectId
+     *      serviceId concat 8001 // 代表OEventObjectId
      * cache
      * Object
      *
@@ -174,7 +174,7 @@ public class CacheImpl implements ICache{
             seed = 0x8000;
         }
 
-        int res = (Short.toUnsignedInt(serviceId) << 16) + (Short.toUnsignedInt(methodId) & 0xF + seed);
+        int res = (Short.toUnsignedInt(serviceId) << 16) | (Short.toUnsignedInt(methodId) & 0xF | seed);
         return res;
     }
 
@@ -194,7 +194,7 @@ public class CacheImpl implements ICache{
         short mMethodId = 0;
         int type = cacheId & 0xF000;
         if(type == 0x1000){
-            mMethodId = (short) (0x9000 + cacheId & 0x00FF);
+            mMethodId = (short) (0x9000 | cacheId & 0x00FF);
         } else if (type == 0x8000) {
             mMethodId = (short) (cacheId&0xFFFF);
         }
@@ -210,6 +210,7 @@ public class CacheImpl implements ICache{
         Log.i(TAG, "notify cacheId: "+Integer.toUnsignedString(cacheId,16));
         if(mSomeIpPkgSender != null){
             SomeIpPkgCodec.SomeIpPkg tmpPkg = genPkg(cacheId,cacheMap.get(cacheId));
+            Log.i(TAG, "notify: "+tmpPkg);
             mSomeIpPkgSender.sendMsg(tmpPkg);
         }
     }
@@ -228,7 +229,9 @@ public class CacheImpl implements ICache{
         CacheType reqPkgType = getPkgType(methodId);
         Log.i(TAG, "mockPkg: reqType: "+reqPkgType+" serviceId: 0x"+Integer.toUnsignedString(Short.toUnsignedInt(serviceId),16)+", methodId: 0x"+Integer.toUnsignedString(Short.toUnsignedInt(methodId),16)+", data: "+data);
         switch (reqPkgType) {
-            case FieldSetter: {
+            case FieldSetter:
+            case FieldNotifier:
+            {
                 // set , notify
                 int key = getCacheId(serviceId,methodId);
                 cacheMap.put(key, data);

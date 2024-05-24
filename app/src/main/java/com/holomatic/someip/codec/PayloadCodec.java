@@ -50,7 +50,14 @@ public class PayloadCodec {
             mByteBuffer = ByteBuffer.allocate(mBufferSize);
         }
         mByteBuffer.clear();
-        enCodeStruct(mByteBuffer,srcDto);
+        Class template = srcDto.getClass();
+        if(template.isArray()){
+            enCodeArray(mByteBuffer,srcDto);
+        }else if(isPrimitive(template)){
+            enCodePrimitive(mByteBuffer,srcDto);
+        }else {
+            enCodeStruct(mByteBuffer,template);
+        }
         mByteBuffer.flip();
         int dateLen = mByteBuffer.remaining();
         byte[] res = new byte[dateLen];
@@ -65,7 +72,7 @@ public class PayloadCodec {
         mByteBuffer.flip();
         if(template.isArray()){
             return deCodeArray(mByteBuffer,template.getComponentType());
-        }else if(template.isPrimitive()){
+        }else if(isPrimitive(template)){
             return decodePrimitive(mByteBuffer,template);
         }else {
             return deCodeStruct(mByteBuffer,template);
@@ -86,6 +93,49 @@ public class PayloadCodec {
 //        return deCodeStruct(mByteBuffer,template);
 //    }
 
+    private boolean isPrimitive(Class type){
+        if(type.equals(Boolean.class) || type.equals(boolean.class)){
+            return true;
+        }else if(type.equals(Byte.class) || type.equals(byte.class)){
+            return true;
+        }else if(type.equals(Character.class) || type.equals(char.class)){ //
+            return true;
+        }else if(type.equals(Short.class) || type.equals(short.class)){
+            return true;
+        }else if(type.equals(Integer.class) || type.equals(int.class)){
+            return true;
+        }else if(type.equals(Long.class) || type.equals(long.class)){
+            return true;
+        }else if(type.equals(Float.class) || type.equals(float.class)){
+            return true;
+        }else if(type.equals(Double.class) || type.equals(double.class)){
+            return true;
+        }
+        return false;
+    }
+
+
+    private void enCodePrimitive(ByteBuffer bufDest,Object srcDto){
+        Class type = srcDto.getClass();
+        if(type.equals(Boolean.class) || type.equals(boolean.class)){
+            enCodeBaseType(bufDest,(byte) srcDto);
+        }else if(type.equals(Byte.class) || type.equals(byte.class)){
+            enCodeBaseType(bufDest,(byte) srcDto);
+        }else if(type.equals(Character.class) || type.equals(char.class)){ //
+            enCodeBaseType(bufDest,(byte) srcDto);
+        }else if(type.equals(Short.class) || type.equals(short.class)){
+            enCodeBaseType(bufDest,(short) srcDto);
+        }else if(type.equals(Integer.class) || type.equals(int.class)){
+            enCodeBaseType(bufDest,(int)srcDto);
+        }else if(type.equals(Long.class) || type.equals(long.class)){
+            enCodeBaseType(bufDest,(long)srcDto);
+        }else if(type.equals(Float.class) || type.equals(float.class)){
+            enCodeBaseType(bufDest,(float)srcDto);
+        }else if(type.equals(Double.class) || type.equals(double.class)){
+            enCodeBaseType(bufDest,(double) srcDto);
+        }
+    }
+
 
     private void enCodeStruct(ByteBuffer bufDest, Object srcDto){
         bufDest.putInt(0);
@@ -97,23 +147,25 @@ public class PayloadCodec {
             try {
                 Class type = fieldItem.getType();
                 if(type.isPrimitive()){
-                    if(type.equals(boolean.class)){
-                        enCodeBaseType(bufDest,fieldItem.getBoolean(srcDto));
-                    }else if(type.equals(byte.class)){
-                        enCodeBaseType(bufDest,fieldItem.getByte(srcDto));
-                    }else if(type.equals(char.class)){
-                        enCodeBaseType(bufDest,fieldItem.getByte(srcDto));
-                    }else if(type.equals(short.class)){
-                        enCodeBaseType(bufDest,fieldItem.getShort(srcDto));
-                    }else if(type.equals(int.class)){
-                        enCodeBaseType(bufDest,fieldItem.getInt(srcDto));
-                    }else if(type.equals(long.class)){
-                        enCodeBaseType(bufDest,fieldItem.getLong(srcDto));
-                    }else if(type.equals(float.class)){
-                        enCodeBaseType(bufDest,fieldItem.getFloat(srcDto));
-                    }else if(type.equals(double.class)){
-                        enCodeBaseType(bufDest,fieldItem.getDouble(srcDto));
-                    }
+                    Object value = fieldItem.get(srcDto);
+                    enCodePrimitive(bufDest,value);
+//                    if(type.equals(boolean.class)){
+//                        enCodeBaseType(bufDest,fieldItem.getBoolean(srcDto));
+//                    }else if(type.equals(byte.class)){
+//                        enCodeBaseType(bufDest,fieldItem.getByte(srcDto));
+//                    }else if(type.equals(char.class)){
+//                        enCodeBaseType(bufDest,fieldItem.getByte(srcDto));
+//                    }else if(type.equals(short.class)){
+//                        enCodeBaseType(bufDest,fieldItem.getShort(srcDto));
+//                    }else if(type.equals(int.class)){
+//                        enCodeBaseType(bufDest,fieldItem.getInt(srcDto));
+//                    }else if(type.equals(long.class)){
+//                        enCodeBaseType(bufDest,fieldItem.getLong(srcDto));
+//                    }else if(type.equals(float.class)){
+//                        enCodeBaseType(bufDest,fieldItem.getFloat(srcDto));
+//                    }else if(type.equals(double.class)){
+//                        enCodeBaseType(bufDest,fieldItem.getDouble(srcDto));
+//                    }
                 }else if(String.class.equals(type)){
                     enCodeString(bufDest, (String) fieldItem.get(srcDto));
                 }else if(type.isArray()){
@@ -283,21 +335,21 @@ public class PayloadCodec {
 
     private Object decodePrimitive(ByteBuffer bufDest, Class type){
         Object res = null;
-        if(type.equals(boolean.class)){
+        if(type.equals(boolean.class) || type.equals(Boolean.class)){
             res = bufDest.get() == 1?true:false;
-        }else if(type.equals(byte.class)){
+        }else if(type.equals(byte.class) || type.equals(Byte.class)){
             res = bufDest.get();
-        }else if(type.equals(char.class)){
+        }else if(type.equals(char.class) || type.equals(Character.class)){
             res = bufDest.get();
-        }else if(type.equals(short.class)){
+        }else if(type.equals(short.class) || type.equals(Short.class)){
             res = bufDest.getShort();
-        }else if(type.equals(int.class)){
+        }else if(type.equals(int.class) || type.equals(Integer.class)){
             res = bufDest.getInt();
-        }else if(type.equals(long.class)){
+        }else if(type.equals(long.class) || type.equals(Long.class)){
             res = bufDest.getLong();
-        }else if(type.equals(float.class)){
+        }else if(type.equals(float.class) || type.equals(Float.class)){
             res = bufDest.getFloat();
-        }else if(type.equals(double.class)){
+        }else if(type.equals(double.class) || type.equals(Double.class)){
             res = bufDest.getDouble();
         }
         return res;
